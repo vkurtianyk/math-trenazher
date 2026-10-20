@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f1e8">
+  <title>Тренажер з математики</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+  <script src="games/count.js" defer></script>
+  <script src="games/hidden.js" defer></script>
+  <script src="games/shapes.js" defer></script>
+  <script src="games/compare.js" defer></script>
+  <script src="games/give.js" defer></script>
+  <script src="games/find.js" defer></script>
+  <script src="games/corners.js" defer></script>
+</head>
+<body>
+  <section id="menu" class="screen">
+    <button id="gear" class="gear" aria-label="Режим асистента (утримуйте 2 секунди)">⚙️</button>
+    <div id="menu-blocks"></div>
+  </section>
+
+  <section id="game" class="screen" hidden>
+    <header class="topbar">
+      <button id="home" class="tool" aria-label="Меню">🏠</button>
+      <div id="progress" class="progress"></div>
+      <span class="tool-space"></span>
+    </header>
+    <p id="instruction" class="instruction"></p>
+    <div id="area" class="area"></div>
+    <div id="choices" class="choices"></div>
+  </section>
+
+  <section id="reward" class="screen" hidden>
+    <div id="stars" class="stars"></div>
+    <p class="instruction">Молодець!</p>
+    <button id="reward-home" class="tool big" aria-label="Меню">🏠</button>
+  </section>
+
+  <dialog id="settings">
+    <div class="settings-head">
+      <h2>Режим асистента</h2>
+      <button id="settings-close" class="tool" aria-label="Закрити">✖️</button>
+    </div>
+    <h3>Налаштування вправ</h3>
+    <table id="settings-table"></table>
+    <h3>Журнал</h3>
+    <div class="log-actions">
+      <button id="log-csv">Завантажити CSV</button>
+      <button id="log-clear">Очистити журнал</button>
+    </div>
+    <table id="log-table"></table>
+  </dialog>
+</body>
+</html>
