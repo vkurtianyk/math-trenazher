@@ -91,8 +91,11 @@ const Voice = {
 
   init() {
     if (!('speechSynthesis' in window)) return;
+    // Серед українських голосів беремо найякісніший: нейронні й «покращені» звучать природніше.
+    const quality = v => /natural|online|neural|premium|enhanced|google/i.test(v.name) ? 1 : 0;
     const find = () => {
-      Voice.voice = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith('uk')) || null;
+      const uk = speechSynthesis.getVoices().filter(v => /^uk([-_]|$)/i.test(v.lang));
+      Voice.voice = uk.sort((a, b) => quality(b) - quality(a))[0] || null;
     };
     find();
     speechSynthesis.addEventListener('voiceschanged', find);
