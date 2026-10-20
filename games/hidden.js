@@ -32,7 +32,7 @@
         strip.append(cell);
       }
       api.area.append(strip);
-      api.instruct('yaku-tsyfru-skhovaly');
+      api.instruct('Яку цифру сховали?');
       api.numberChoices(Util.options(hidden, api.settings.options, 1, max), hidden, () => {
         hiddenCell.textContent = String(hidden);
         hiddenCell.classList.replace('cloud', 'revealed');

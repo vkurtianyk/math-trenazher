@@ -16,16 +16,17 @@
     ];
   };
 
-  const plate = (tag, count) => {
+  const plate = (tag, count, thing) => {
     const p = Util.el(tag, 'plate');
     const items = Util.el('div', 'plate-items');
     items.style.setProperty('--per-row', count > 6 ? 4 : count > 2 ? 3 : 2);
-    for (let i = 0; i < count; i++) items.append(Util.el('span', 'item', Util.apple()));
+    for (let i = 0; i < count; i++) items.append(Util.el('span', 'item', Util.emoji(thing.e)));
     p.append(items);
     return p;
   };
 
   let tasks = [];
+  let lastThing = null;
 
   registerGame({
     id: 'compare',
@@ -44,25 +45,27 @@
       if (index === 0) tasks = plan(api.settings.range);
       const t = tasks[index];
       const counts = Util.shuffle(t.counts);
+      const thing = Util.freshThing(lastThing);
+      lastThing = thing;
       const field = api.el('div', 'field plates');
       api.area.append(field);
 
       if (t.q === 'equal') {
-        field.append(plate('div', counts[0]), plate('div', counts[1]));
+        field.append(plate('div', counts[0], thing), plate('div', counts[1], thing));
         const yes = api.el('button', 'card thumb', '👍');
         const no = api.el('button', 'card thumb', '👎');
         yes.setAttribute('aria-label', 'Так');
         no.setAttribute('aria-label', 'Ні');
         api.choicesEl.append(yes, no);
-        api.instruct('porivnu');
+        api.instruct('Порівну?');
         api.choose([yes, no], counts[0] === counts[1] ? yes : no);
         return;
       }
 
-      const plates = counts.map(c => plate('button', c));
+      const plates = counts.map(c => plate('button', c, thing));
       field.append(...plates);
       const want = t.q === 'more' ? Math.max(...counts) : Math.min(...counts);
-      api.instruct(t.q === 'more' ? 'pokazhy-de-bilshe' : 'pokazhy-de-menshe');
+      api.instruct(t.q === 'more' ? 'Покажи, де більше' : 'Покажи, де менше');
       api.choose(plates, plates[counts.indexOf(want)]);
     },
   });

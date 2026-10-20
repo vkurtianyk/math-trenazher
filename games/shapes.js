@@ -2,10 +2,10 @@
 
 (() => {
   const SHAPES = {
-    trykutnyk: c => `<path d="M50 8 L94 88 L6 88 Z" fill="${c}"/>`,
-    kvadrat: c => `<rect x="12" y="12" width="76" height="76" fill="${c}"/>`,
-    pryamokutnyk: c => `<rect x="4" y="28" width="92" height="44" fill="${c}"/>`,
-    kolo: c => `<circle cx="50" cy="50" r="42" fill="${c}"/>`,
+    'трикутник': c => `<path d="M50 8 L94 88 L6 88 Z" fill="${c}"/>`,
+    'квадрат': c => `<rect x="12" y="12" width="76" height="76" fill="${c}"/>`,
+    'прямокутник': c => `<rect x="4" y="28" width="92" height="44" fill="${c}"/>`,
+    'коло': c => `<circle cx="50" cy="50" r="42" fill="${c}"/>`,
   };
   const svg = (type, color) => `<svg viewBox="0 0 100 100" aria-hidden="true">${SHAPES[type](color)}</svg>`;
 
@@ -32,14 +32,14 @@
       const buttons = types.map((type, i) => {
         const b = api.el('button', 'obj shape', svg(type, colors[i]));
         b.setAttribute('aria-label', 'Фігура');
-        const rot = type === 'kolo' ? 0 : Util.randInt(-25, 25);
+        const rot = type === 'коло' ? 0 : Util.randInt(-25, 25);
         b.style.setProperty('--shape-transform', `rotate(${rot}deg) scale(${(Util.randInt(60, 100) / 100).toFixed(2)})`);
         return b;
       });
       const field = api.el('div', 'field');
       field.append(...buttons);
       api.area.append(field);
-      api.instruct('pokazhy-' + target);
+      api.instruct('Покажи ' + target);
       api.choose(buttons, buttons[types.indexOf(target)]);
     },
   });

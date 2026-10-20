@@ -6,6 +6,7 @@ const FILES = [
   './', 'index.html', 'style.css', 'app.js', 'icon.svg',
   'games/count.js', 'games/hidden.js', 'games/shapes.js', 'games/compare.js',
   'games/give.js', 'games/find.js', 'games/corners.js',
+  'games/feed.js', 'games/howmany.js', 'games/match.js', 'games/size.js',
 ];
 
 self.addEventListener('install', e => {

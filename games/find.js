@@ -23,7 +23,7 @@
       last = target;
       const field = api.el('div', 'field');
       api.area.append(field);
-      api.instruct('pokazhy-' + target);
+      api.instruct('Покажи ' + target);
       api.numberChoices(Util.options(target, api.settings.options, 1, max), target, null, field);
     },
   });

@@ -1,24 +1,5 @@
 'use strict';
 
-// Тексти інструкцій.
-const PHRASES = {
-  'porakhui-olivtsi': 'Порахуй олівці',
-  'skilky-olivtsiv': 'Скільки олівців?',
-  'yaku-tsyfru-skhovaly': 'Яку цифру сховали?',
-  'pokazhy-trykutnyk': 'Покажи трикутник',
-  'pokazhy-kvadrat': 'Покажи квадрат',
-  'pokazhy-pryamokutnyk': 'Покажи прямокутник',
-  'pokazhy-kolo': 'Покажи коло',
-  'pokazhy-de-bilshe': 'Покажи, де більше',
-  'pokazhy-de-menshe': 'Покажи, де менше',
-  'porivnu': 'Порівну?',
-  'dai-stilky-zh': 'Дай стільки ж',
-  'porakhuimo-razom': 'Порахуймо разом',
-  'torknys-kutiv': 'Торкнись кожного кута',
-  'skilky-kutiv': 'Скільки кутів?',
-};
-for (let n = 1; n <= 10; n++) PHRASES['pokazhy-' + n] = 'Покажи ' + n;
-
 const TASKS_PER_GAME = 5;
 const NEXT_DELAY = 1000;
 const LONG_PRESS = 2000;
@@ -68,13 +49,72 @@ const Util = {
     return e;
   },
   COLORS: ['#5b8def', '#e57373', '#66bb6a', '#ffa726', '#9575cd', '#26a69a'],
-  apple() {
-    return `<svg viewBox="0 0 100 100" aria-hidden="true">
-      <path d="M50 28 C30 14 8 26 12 52 C15 76 32 94 50 86 C68 94 85 76 88 52 C92 26 70 14 50 28 Z" fill="#e57373"/>
-      <path d="M50 30 C50 20 54 12 60 8" stroke="#6d4c41" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <path d="M56 18 C66 8 80 10 82 14 C74 22 64 22 56 18 Z" fill="#81c784"/>
-      <ellipse cx="34" cy="46" rx="7" ry="11" fill="#fff" opacity=".35"/>
-    </svg>`;
+
+  // Предмети для лічби. acc — «Порахуй …», gen — «Скільки …?».
+  THINGS: [
+    { e: '🐱', acc: 'котиків', gen: 'котиків' },
+    { e: '🐶', acc: 'песиків', gen: 'песиків' },
+    { e: '🐟', acc: 'рибок', gen: 'рибок' },
+    { e: '🐥', acc: 'курчат', gen: 'курчат' },
+    { e: '🐞', acc: 'сонечок', gen: 'сонечок' },
+    { e: '🦋', acc: 'метеликів', gen: 'метеликів' },
+    { e: '🐰', acc: 'зайчиків', gen: 'зайчиків' },
+    { e: '🐸', acc: 'жабок', gen: 'жабок' },
+    { e: '🍐', acc: 'груші', gen: 'груш' },
+    { e: '🍎', acc: 'яблука', gen: 'яблук' },
+    { e: '🍓', acc: 'полуниці', gen: 'полуниць' },
+    { e: '🍬', acc: 'цукерки', gen: 'цукерок' },
+    { e: '🎈', acc: 'кульки', gen: 'кульок' },
+    { e: '🚗', acc: 'машинки', gen: 'машинок' },
+    { e: '⚽', acc: "м'ячі", gen: "м'ячів" },
+    { e: '✏️', acc: 'олівці', gen: 'олівців' },
+  ],
+
+  // Новий предмет, не такий, як попередній.
+  freshThing(last) {
+    let t;
+    do { t = Util.pick(Util.THINGS); } while (t === last);
+    return t;
+  },
+
+  emoji(e) {
+    return `<span class="emoji" aria-hidden="true">${e}</span>`;
+  },
+};
+
+// ---------- Голос ----------
+
+// Озвучка через голос планшета (Web Speech API). Говорить лише українським голосом;
+// якщо його немає — мовчить, інструкцію видно текстом.
+const Voice = {
+  voice: null,
+
+  init() {
+    if (!('speechSynthesis' in window)) return;
+    const find = () => {
+      Voice.voice = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith('uk')) || null;
+    };
+    find();
+    speechSynthesis.addEventListener('voiceschanged', find);
+  },
+
+  get on() {
+    return Store.read('mt-voice', true) && Voice.voice !== null;
+  },
+
+  // queue=true — дочекатися кінця попередньої фрази, інакше перебити її.
+  say(text, queue = false) {
+    if (!Voice.on) return;
+    if (!queue) speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'uk-UA';
+    u.voice = Voice.voice;
+    u.rate = 0.9;
+    speechSynthesis.speak(u);
+  },
+
+  stop() {
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
   },
 };
 
@@ -120,10 +160,15 @@ const api = {
   get settings() { return state.settings; },
   el: Util.el,
 
-  instruct(key) {
-    const text = PHRASES[key];
-    if (text === undefined) throw new Error('Невідома фраза: ' + key);
+  instruct(text) {
     $('instruction').textContent = text;
+    Voice.say(text, true);
+  },
+
+  say: Voice.say,
+
+  repeat() {
+    Voice.say($('instruction').textContent);
   },
 
   // Відкласти дію; скасовується, якщо вийшли з вправи.
@@ -143,6 +188,7 @@ const api = {
     state.locked = true;
     el.classList.add('ok');
     if (onDone) onDone();
+    Voice.say('Молодець!');
     if (state.taskHinted) state.hinted++; else state.first++;
     api.later(() => { state.index++; nextTask(); }, NEXT_DELAY);
   },
@@ -154,6 +200,7 @@ const api = {
     void el.offsetWidth;
     el.classList.add('shake');
     correctEl.classList.add('hint');
+    api.repeat();
   },
 
   // Прив'язати вибір: правильна кнопка — успіх, інша — підказка.
@@ -171,7 +218,59 @@ const api = {
     container.replaceChildren(...buttons);
     api.choose(buttons, buttons[values.indexOf(correct)], onCorrect);
   },
+
+  // Підказка «Порахуймо разом»: предмети кожної групи по черзі отримують номер 1, 2, 3…
+  // Після цього повертається інструкція `back` і викликається `done`.
+  countTogether(groups, back, done) {
+    api.markHinted();
+    api.instruct('Порахуймо разом');
+    const STEP = 900;
+    let t = STEP * 1.5;
+    for (const group of groups) {
+      group.forEach((item, i) => {
+        api.later(() => {
+          item.classList.add('hint');
+          item.dataset.n = i + 1;
+          Voice.say(String(i + 1));
+        }, t);
+        t += STEP;
+      });
+      t += STEP;
+    }
+    api.later(() => {
+      for (const item of groups.flat()) {
+        item.classList.remove('hint');
+        delete item.dataset.n;
+      }
+      api.instruct(back);
+      done();
+    }, t);
+  },
 };
+
+// ---------- Альбом наліпок ----------
+
+const STICKERS = ['🐱', '🐶', '🐰', '🐻', '🐼', '🦊', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵',
+  '🐔', '🐧', '🦉', '🐢', '🐟', '🐬', '🐳', '🦋', '🐞', '🐝', '🦄', '🐘',
+  '🦒', '🦓', '🐴', '🐑', '🐿️', '🦔'];
+
+// Нова наліпка за завершену вправу. Коли альбом повний — будь-яка з уже зібраних.
+function awardSticker() {
+  const have = Store.read('mt-stickers', []);
+  const missing = STICKERS.filter(s => !have.includes(s));
+  if (missing.length === 0) return Util.pick(STICKERS);
+  const s = Util.pick(missing);
+  Store.write('mt-stickers', [...have, s]);
+  return s;
+}
+
+function openAlbum() {
+  const have = Store.read('mt-stickers', []);
+  $('album-grid').replaceChildren(...STICKERS.map(s => have.includes(s)
+    ? Util.el('span', 'slot got', Util.emoji(s))
+    : Util.el('span', 'slot')));
+  showScreen('album');
+}
 
 function showScreen(id) {
   for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id;
@@ -184,6 +283,7 @@ function startGame(id) {
   state.first = 0;
   state.hinted = 0;
   state.token++;
+  $('repeat').hidden = !Voice.on;
   showScreen('game');
   nextTask();
 }
@@ -215,18 +315,21 @@ function finish() {
     s.style.animationDelay = (i * 0.35) + 's';
     return s;
   }));
+  $('sticker').innerHTML = Util.emoji(awardSticker());
   showScreen('reward');
+  Voice.say('Молодець!', true);
 }
 
 function goMenu() {
   state.token++;
+  Voice.stop();
   showScreen('menu');
 }
 
 // ---------- Меню ----------
 
 function buildMenu() {
-  const blocks = [['sep', 'Вересень'], ['oct', 'Жовтень']];
+  const blocks = [['sep', 'Вересень'], ['oct', 'Жовтень'], ['extra', 'Ще вправи']];
   $('menu-blocks').replaceChildren(...blocks.map(([block, title]) => {
     const wrap = Util.el('div', 'block');
     wrap.append(Util.el('h2', 'block-title', title));
@@ -287,6 +390,11 @@ function openSettings() {
     if ('options' in g.defaults) options.append(selectFor(id, 'options', [2, 3, 4], ['2', '3', '4']));
     else options.textContent = '—';
   }
+  const voice = $('voice-toggle');
+  voice.value = String(Store.read('mt-voice', true));
+  $('voice-status').textContent = Voice.voice
+    ? 'Голос: ' + Voice.voice.name
+    : 'На цьому планшеті немає українського голосу — інструкції лише текстом.';
   renderLog();
   $('settings').showModal();
 }
@@ -321,10 +429,18 @@ function downloadCsv() {
 // ---------- Старт ----------
 
 document.addEventListener('DOMContentLoaded', () => {
+  Voice.init();
   buildMenu();
   setupGear();
+  $('repeat').addEventListener('click', api.repeat);
+  $('voice-toggle').addEventListener('change', e => Store.write('mt-voice', e.target.value === 'true'));
   $('home').addEventListener('click', goMenu);
   $('reward-home').addEventListener('click', goMenu);
+  $('album-open').addEventListener('click', openAlbum);
+  $('album-home').addEventListener('click', goMenu);
+  $('album-clear').addEventListener('click', () => {
+    if (confirm('Почати альбом наліпок заново?')) Store.write('mt-stickers', []);
+  });
   $('settings-close').addEventListener('click', () => $('settings').close());
   $('log-csv').addEventListener('click', downloadCsv);
   $('log-clear').addEventListener('click', () => {

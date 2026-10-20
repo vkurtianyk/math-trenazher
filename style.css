@@ -91,6 +91,29 @@ button {
 }
 .menu-card svg { width: 100%; max-width: 160px; height: auto; flex: 1; }
 .caption { font-size: 14px; color: var(--muted); }
+.icon-emoji { flex: 1; display: flex; flex-direction: column; justify-content: center; font-size: 44px; line-height: 1.15; text-align: center; }
+.icon-emoji small { font-size: 26px; }
+.icon-emoji b { font-size: 44px; color: var(--ink); }
+.album-card { width: min(220px, 42vw); min-height: 150px; margin-right: 80px; }
+.album-card .emoji { font-size: 64px; flex: 1; display: flex; align-items: center; }
+
+/* ---------- Альбом ---------- */
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 14px;
+  padding-top: 16px;
+}
+.slot {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px dashed #cfd8dc;
+  border-radius: 50%;
+}
+.slot.got { border: 4px solid #ffe082; background: #fff; }
+.slot .emoji { font-size: 60px; }
 
 /* ---------- Вправа ---------- */
 
@@ -116,7 +139,6 @@ button {
   line-height: 1;
 }
 .tool small { font-size: 14px; color: var(--muted); margin-top: 4px; }
-.tool-space { width: 90px; }
 .tool.big { font-size: 56px; min-width: 140px; min-height: 140px; }
 
 .progress { display: flex; gap: 10px; }
@@ -199,34 +221,32 @@ button {
   75% { transform: translateX(-4px); }
 }
 
-/* Порахуй */
-.area-count .field { gap: 40px; }
-.pencil {
-  width: var(--obj);
-  height: calc(var(--obj) * 1.9);
-  padding: 0;
-  position: relative;
-  transform: rotate(var(--rot));
-}
-.pencil.counted svg { opacity: .6; }
-.obj.pencil[data-n]::after { top: 30%; }
-.give-plate .item { position: relative; }
-.obj[data-n]::after {
+/* Емодзі-предмети */
+.emoji { display: block; line-height: 1; text-align: center; }
+.obj .emoji { font-size: calc(var(--obj) * .62); }
+.thing .emoji { font-size: calc(var(--obj) * .8); }
+[data-n] { position: relative; }
+/* Номер під час лічби — кружечок у кутку предмета. */
+[data-n]::after {
   content: attr(data-n);
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 56px;
-  height: 56px;
+  top: -10px;
+  right: -10px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #fff;
   border: 4px solid #81c784;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  line-height: 48px;
+  line-height: 40px;
   text-align: center;
 }
+
+/* Порахуй */
+.area-count .field { gap: 28px; }
+.thing { width: var(--obj); height: var(--obj); transform: rotate(var(--rot)); }
+.thing.counted .emoji { opacity: .55; }
 
 /* Яку цифру сховали? */
 .strip {
@@ -262,7 +282,8 @@ button {
 /* Тарілки */
 .plates { gap: 32px; align-items: flex-start; }
 .plate {
-  width: clamp(240px, 38vmin, 380px);
+  --plate: clamp(240px, 38vmin, 380px);
+  width: var(--plate);
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -278,8 +299,8 @@ button {
   gap: 6px;
   width: 100%;
 }
-.plate-items .item { aspect-ratio: 1; }
-.plate-items svg { width: 100%; height: 100%; }
+.plate-items .item { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+.plate-items .emoji { font-size: calc(var(--plate) * .5 / var(--per-row)); }
 
 /* Дай стільки ж */
 .give-plate {
@@ -295,7 +316,7 @@ button {
   gap: 4px;
   max-width: 46vw;
 }
-.give-plate .item { width: var(--obj); height: var(--obj); }
+.give-plate .item { width: var(--obj); height: var(--obj); padding: 0; }
 .box {
   display: flex;
   flex-wrap: wrap;
@@ -308,7 +329,7 @@ button {
   border: 5px solid #bcaaa4;
   border-radius: 16px;
 }
-.box .item { width: var(--obj); height: var(--obj); }
+.box .item { width: var(--obj); height: var(--obj); padding: 0; }
 
 /* Скільки кутів? */
 .figure { width: min(50vmin, 500px); height: auto; overflow: visible; }
@@ -316,19 +337,75 @@ button {
 .sticker { fill: #ffca28; stroke: #f9a825; stroke-width: 4; pointer-events: none; }
 .sticker-n { font-size: 34px; font-weight: 700; text-anchor: middle; fill: #1f2a33; pointer-events: none; }
 
+/* Нагодуй тваринку */
+.feed-scene { gap: 16px; }
+.pet .emoji { font-size: clamp(110px, 17vmin, 170px); }
+.pet.happy { animation: hop .8s ease-in-out 1; }
+@keyframes hop { 50% { transform: translateY(-24px); } }
+.wish {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--panel);
+  border: 4px solid #cfd8dc;
+  border-radius: 32px;
+}
+.wish-n { font-size: 64px; font-weight: 700; }
+.wish-dots { display: flex; flex-wrap: wrap; gap: 6px; max-width: 360px; }
+.wish-dot .emoji { font-size: 44px; }
+.wish-dot { padding: 4px; border-radius: 12px; }
+.bowl {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 4px;
+  min-width: min(60%, 520px);
+  min-height: calc(var(--obj) + 40px);
+  padding: 12px 24px;
+  background: #fff;
+  border: 5px solid #cfd8dc;
+  border-top-width: 2px;
+  border-radius: 12px 12px 120px 120px;
+}
+.bowl .item { width: var(--obj); height: var(--obj); padding: 0; }
+
+/* Групи предметів: акуратні ряди по 5 */
+.group { display: grid; grid-template-columns: repeat(5, auto); gap: 6px; justify-content: center; }
+.group .emoji { font-size: 52px; }
+.group.big { gap: 16px; }
+.group.big .emoji { font-size: clamp(80px, 14vmin, 140px); }
+.group-card {
+  min-width: 160px;
+  min-height: 120px;
+  padding: 16px;
+  background: var(--panel);
+  border: 5px solid #cfd8dc;
+  border-radius: 24px;
+}
+.card.target { border-color: #90caf9; font-size: calc(var(--card) * .6); width: calc(var(--card) * 1.3); height: calc(var(--card) * 1.3); }
+
+/* Великий і маленький */
+.sizes { align-items: flex-end; }
+.sized { width: clamp(150px, 24vmin, 230px); height: clamp(150px, 24vmin, 230px); display: flex; align-items: flex-end; justify-content: center; background: var(--panel); border-color: #eceff1; }
+.sized .emoji { font-size: calc(clamp(150px, 24vmin, 230px) * .75 * var(--k)); }
+
 /* ---------- Нагорода ---------- */
 
 #reward { align-items: center; justify-content: center; gap: 24px; }
 .stars { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .star { width: clamp(90px, 14vmin, 140px); opacity: 0; animation: appear .8s ease-out forwards; }
 .star svg { width: 100%; }
+.sticker-prize .emoji { font-size: clamp(110px, 18vmin, 170px); opacity: 0; animation: appear 1s ease-out 1.9s forwards; }
 @keyframes appear {
   from { opacity: 0; transform: scale(.6); }
   to { opacity: 1; transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .star { animation: none; opacity: 1; }
+  .star, .sticker-prize .emoji { animation: none; opacity: 1; }
+  .pet.happy { animation: none; }
   .shake { animation: none; }
 }
 
@@ -351,6 +428,8 @@ dialog::backdrop { background: rgba(31, 42, 51, .4); }
 dialog table { width: 100%; border-collapse: collapse; font-size: 18px; }
 dialog th, dialog td { text-align: left; padding: 8px; border-bottom: 1px solid #eceff1; }
 dialog select { font-size: 18px; padding: 8px; min-height: 48px; }
+.voice-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 18px; }
+#repeat[hidden] { visibility: hidden; display: inline-flex; }
 .log-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
 .log-actions button {
   min-height: 56px;

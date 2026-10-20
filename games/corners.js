@@ -73,15 +73,16 @@
           num.setAttribute('class', 'sticker-n');
           num.textContent = counted;
           svg.append(star, num);
+          api.say(String(counted));
           if (counted === total) api.later(ask, 900);
         });
         svg.append(hit);
       }
       api.area.append(svg);
-      api.instruct('torknys-kutiv');
+      api.instruct('Торкнись кожного кута');
 
       function ask() {
-        api.instruct('skilky-kutiv');
+        api.instruct('Скільки кутів?');
         api.numberChoices(Util.shuffle([3, 4]), total);
       }
     },

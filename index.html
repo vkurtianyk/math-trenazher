@@ -15,18 +15,32 @@
   <script src="games/give.js" defer></script>
   <script src="games/find.js" defer></script>
   <script src="games/corners.js" defer></script>
+  <script src="games/feed.js" defer></script>
+  <script src="games/howmany.js" defer></script>
+  <script src="games/match.js" defer></script>
+  <script src="games/size.js" defer></script>
 </head>
 <body>
   <section id="menu" class="screen">
     <button id="gear" class="gear" aria-label="Режим асистента (утримуйте 2 секунди)">⚙️</button>
+    <button id="album-open" class="menu-card album-card" aria-label="Альбом наліпок">
+      <span class="emoji" aria-hidden="true">📒</span><span class="caption">Альбом наліпок</span>
+    </button>
     <div id="menu-blocks"></div>
+  </section>
+
+  <section id="album" class="screen" hidden>
+    <header class="topbar">
+      <button id="album-home" class="tool" aria-label="Меню">🏠</button>
+    </header>
+    <div id="album-grid" class="album-grid"></div>
   </section>
 
   <section id="game" class="screen" hidden>
     <header class="topbar">
       <button id="home" class="tool" aria-label="Меню">🏠</button>
       <div id="progress" class="progress"></div>
-      <span class="tool-space"></span>
+      <button id="repeat" class="tool" aria-label="Ще раз">🔊<small>Ще раз</small></button>
     </header>
     <p id="instruction" class="instruction"></p>
     <div id="area" class="area"></div>
@@ -35,6 +49,7 @@
 
   <section id="reward" class="screen" hidden>
     <div id="stars" class="stars"></div>
+    <div id="sticker" class="sticker-prize"></div>
     <p class="instruction">Молодець!</p>
     <button id="reward-home" class="tool big" aria-label="Меню">🏠</button>
   </section>
@@ -44,12 +59,18 @@
       <h2>Режим асистента</h2>
       <button id="settings-close" class="tool" aria-label="Закрити">✖️</button>
     </div>
+    <h3>Голос</h3>
+    <p class="voice-row">
+      <select id="voice-toggle"><option value="true">увімк.</option><option value="false">вимк.</option></select>
+      <span id="voice-status"></span>
+    </p>
     <h3>Налаштування вправ</h3>
     <table id="settings-table"></table>
     <h3>Журнал</h3>
     <div class="log-actions">
       <button id="log-csv">Завантажити CSV</button>
       <button id="log-clear">Очистити журнал</button>
+      <button id="album-clear">Почати альбом заново</button>
     </div>
     <table id="log-table"></table>
   </dialog>
