@@ -7,6 +7,7 @@
     id: 'find',
     block: 'oct',
     caption: 'Знайди цифру',
+    ranges: [5, 10, 15],
     defaults: { range: 5, options: 3 },
     icon: `<svg viewBox="0 0 120 120" aria-hidden="true">
       <rect x="4" y="34" width="34" height="50" rx="6" fill="#fff" stroke="#90a4ae" stroke-width="3"/>

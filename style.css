@@ -98,11 +98,11 @@ button {
 .album-card .emoji { font-size: 64px; flex: 1; display: flex; align-items: center; }
 
 /* ---------- Альбом ---------- */
-.album-grid {
+.album-grid { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
+.album-slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 14px;
-  padding-top: 16px;
 }
 .slot {
   aspect-ratio: 1;
@@ -114,6 +114,7 @@ button {
 }
 .slot.got { border: 4px solid #ffe082; background: #fff; }
 .slot .emoji { font-size: 60px; }
+.icon-emoji .faded { opacity: .3; }
 
 /* ---------- Вправа ---------- */
 
@@ -390,6 +391,66 @@ button {
 .sizes { align-items: flex-end; }
 .sized { width: clamp(150px, 24vmin, 230px); height: clamp(150px, 24vmin, 230px); display: flex; align-items: flex-end; justify-content: center; background: var(--panel); border-color: #eceff1; }
 .sized .emoji { font-size: calc(clamp(150px, 24vmin, 230px) * .75 * var(--k)); }
+
+/* Числа до 15 */
+.frames { gap: 32px; }
+.frame {
+  display: grid;
+  grid-template-columns: repeat(5, clamp(56px, 8vmin, 84px));
+  grid-auto-rows: clamp(56px, 8vmin, 84px);
+  gap: 4px;
+  padding: 6px;
+  background: #fff;
+  border: 4px solid #90a4ae;
+  border-radius: 12px;
+}
+.frame-cell { display: flex; align-items: center; justify-content: center; border: 2px solid #eceff1; border-radius: 8px; }
+.frame-cell .emoji { font-size: clamp(36px, 5.5vmin, 58px); }
+.cell.focus { background: #e3f2fd; border-color: #5b8def; }
+.cell.ask { color: #90a4ae; border-style: dashed; }
+.group.many .emoji { font-size: clamp(56px, 8vmin, 84px); }
+
+/* Додавання і віднімання */
+.equation { font-size: clamp(40px, 6vmin, 60px); font-weight: 700; min-height: 1.2em; padding: 4px 24px; border-radius: 16px; border: 5px solid transparent; }
+.basket { min-width: min(80%, 640px); }
+.gone { opacity: .2; transform: translateY(-16px) scale(.85); transition: opacity .6s, transform .6s; }
+.faded { opacity: .25; }
+.example { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 16px; }
+.term { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 100px; }
+.term-n { font-size: clamp(64px, 11vmin, 110px); font-weight: 700; line-height: 1; }
+.term-n.ask { color: #90a4ae; }
+.term .group .emoji { font-size: clamp(30px, 4.5vmin, 44px); }
+.sign { font-size: clamp(64px, 11vmin, 110px); font-weight: 700; line-height: 1; color: var(--muted); }
+.houses { gap: 40px; }
+.house {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: clamp(260px, 36vmin, 360px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.roof {
+  width: 100%;
+  height: 70px;
+  background: #e57373;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.rooms {
+  width: 88%;
+  min-height: calc(var(--obj) * 2 + 32px);
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+  background: #fff8e1;
+  border: 5px solid #bcaaa4;
+  border-top: 0;
+}
+.rooms .item, .area-split .box .item { width: var(--obj); height: var(--obj); padding: 0; }
 
 /* ---------- Нагорода ---------- */
 

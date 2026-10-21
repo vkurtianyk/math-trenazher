@@ -52,14 +52,14 @@ const Util = {
 
   // Предмети для лічби. acc — «Порахуй …», gen — «Скільки …?».
   THINGS: [
-    { e: '🐱', acc: 'котиків', gen: 'котиків' },
-    { e: '🐶', acc: 'песиків', gen: 'песиків' },
-    { e: '🐟', acc: 'рибок', gen: 'рибок' },
-    { e: '🐥', acc: 'курчат', gen: 'курчат' },
-    { e: '🐞', acc: 'сонечок', gen: 'сонечок' },
-    { e: '🦋', acc: 'метеликів', gen: 'метеликів' },
-    { e: '🐰', acc: 'зайчиків', gen: 'зайчиків' },
-    { e: '🐸', acc: 'жабок', gen: 'жабок' },
+    { e: '🐱', acc: 'котиків', gen: 'котиків', animal: true },
+    { e: '🐶', acc: 'песиків', gen: 'песиків', animal: true },
+    { e: '🐟', acc: 'рибок', gen: 'рибок', animal: true },
+    { e: '🐥', acc: 'курчат', gen: 'курчат', animal: true },
+    { e: '🐞', acc: 'сонечок', gen: 'сонечок', animal: true },
+    { e: '🦋', acc: 'метеликів', gen: 'метеликів', animal: true },
+    { e: '🐰', acc: 'зайчиків', gen: 'зайчиків', animal: true },
+    { e: '🐸', acc: 'жабок', gen: 'жабок', animal: true },
     { e: '🍐', acc: 'груші', gen: 'груш' },
     { e: '🍎', acc: 'яблука', gen: 'яблук' },
     { e: '🍓', acc: 'полуниці', gen: 'полуниць' },
@@ -71,10 +71,15 @@ const Util = {
   ],
 
   // Новий предмет, не такий, як попередній.
-  freshThing(last) {
+  freshThing(last, list = Util.THINGS) {
     let t;
-    do { t = Util.pick(Util.THINGS); } while (t === last);
+    do { t = Util.pick(list); } while (t === last);
     return t;
+  },
+
+  // Рядок прикладу, напр. «3 + 2 = ?». Мінус — справжній знак «−».
+  equation(text) {
+    return Util.el('div', 'equation', text);
   },
 
   emoji(e) {
@@ -253,15 +258,34 @@ const api = {
 
 // ---------- Альбом наліпок ----------
 
-const STICKERS = ['🐱', '🐶', '🐰', '🐻', '🐼', '🦊', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵',
-  '🐔', '🐧', '🦉', '🐢', '🐟', '🐬', '🐳', '🦋', '🐞', '🐝', '🦄', '🐘',
-  '🦒', '🦓', '🐴', '🐑', '🐿️', '🦔'];
+// Сторінки альбому. Наступна відкривається, коли попередню зібрано повністю.
+const ALBUM = [
+  { title: 'Тварини', stickers: ['🐱', '🐶', '🐰', '🐻', '🐼', '🦊', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵',
+    '🐔', '🐧', '🦉', '🐢', '🐟', '🐬', '🐳', '🦋', '🐞', '🐝', '🦄', '🐘',
+    '🦒', '🦓', '🐴', '🐑', '🐿️', '🦔'] },
+  { title: 'Транспорт', stickers: ['🚗', '🚕', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛',
+    '🚜', '🏍️', '🛵', '🚲', '🛴', '🚂', '🚆', '🚇', '🚊', '🚝', '✈️', '🚁',
+    '🛩️', '🚀', '🛸', '⛵', '🚤', '🛳️'] },
+  { title: 'Смаколики', stickers: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒', '🍑', '🥭',
+    '🍍', '🥥', '🥝', '🍅', '🥕', '🌽', '🥦', '🥒', '🍞', '🧀', '🥚', '🥞',
+    '🍕', '🍔', '🍟', '🍦', '🍩', '🍪'] },
+  { title: 'Небо і космос', stickers: ['☀️', '🌞', '🌝', '🌛', '🌜', '🌙', '🌕', '🌗', '🌑', '⭐', '🌟', '✨',
+    '💫', '🌠', '☄️', '🪐', '🌍', '🌎', '🌏', '🛰️', '👽', '👾', '🌌', '🔭',
+    '🌈', '☁️', '⛅', '⚡', '❄️', '🌪️'] },
+];
 
-// Нова наліпка за завершену вправу. Коли альбом повний — будь-яка з уже зібраних.
+// Сторінки, які вже відкриті: усі зібрані й перша незібрана.
+function openPages(have) {
+  const i = ALBUM.findIndex(p => p.stickers.some(s => !have.includes(s)));
+  return i === -1 ? ALBUM : ALBUM.slice(0, i + 1);
+}
+
+// Нова наліпка за завершену вправу. Коли весь альбом зібрано — будь-яка з уже зібраних.
 function awardSticker() {
   const have = Store.read('mt-stickers', []);
-  const missing = STICKERS.filter(s => !have.includes(s));
-  if (missing.length === 0) return Util.pick(STICKERS);
+  const pages = openPages(have);
+  const missing = pages[pages.length - 1].stickers.filter(s => !have.includes(s));
+  if (missing.length === 0) return Util.pick(Util.pick(ALBUM).stickers);
   const s = Util.pick(missing);
   Store.write('mt-stickers', [...have, s]);
   return s;
@@ -269,9 +293,17 @@ function awardSticker() {
 
 function openAlbum() {
   const have = Store.read('mt-stickers', []);
-  $('album-grid').replaceChildren(...STICKERS.map(s => have.includes(s)
-    ? Util.el('span', 'slot got', Util.emoji(s))
-    : Util.el('span', 'slot')));
+  // Найновіша сторінка — зверху.
+  $('album-grid').replaceChildren(...openPages(have).reverse().map(page => {
+    const wrap = Util.el('section', 'album-page');
+    wrap.append(Util.el('h2', 'block-title', page.title));
+    const grid = Util.el('div', 'album-slots');
+    grid.append(...page.stickers.map(s => have.includes(s)
+      ? Util.el('span', 'slot got', Util.emoji(s))
+      : Util.el('span', 'slot')));
+    wrap.append(grid);
+    return wrap;
+  }));
   showScreen('album');
 }
 
@@ -332,7 +364,8 @@ function goMenu() {
 // ---------- Меню ----------
 
 function buildMenu() {
-  const blocks = [['sep', 'Вересень'], ['oct', 'Жовтень'], ['extra', 'Ще вправи']];
+  const blocks = [['sep', 'Вересень'], ['oct', 'Жовтень'], ['extra', 'Ще вправи'],
+    ['teen', 'Числа до 15'], ['math', 'Додавання і віднімання']];
   $('menu-blocks').replaceChildren(...blocks.map(([block, title]) => {
     const wrap = Util.el('div', 'block');
     wrap.append(Util.el('h2', 'block-title', title));
@@ -381,17 +414,21 @@ function openSettings() {
   const table = $('settings-table');
   table.replaceChildren();
   const head = table.insertRow();
-  for (const h of ['Вправа', 'Діапазон', 'Варіантів']) head.append(Util.el('th', '', h));
+  for (const h of ['Вправа', 'Діапазон', 'Варіантів', 'Картинки']) head.append(Util.el('th', '', h));
   for (const id of GAME_ORDER) {
     const g = Games[id];
     const row = table.insertRow();
     row.insertCell().textContent = g.caption;
     const range = row.insertCell();
-    if ('range' in g.defaults) range.append(selectFor(id, 'range', [5, 10], ['до 5', 'до 10']));
+    const ranges = g.ranges || [5, 10];
+    if ('range' in g.defaults) range.append(selectFor(id, 'range', ranges, ranges.map(r => 'до ' + r)));
     else range.textContent = '—';
     const options = row.insertCell();
     if ('options' in g.defaults) options.append(selectFor(id, 'options', [2, 3, 4], ['2', '3', '4']));
     else options.textContent = '—';
+    const pictures = row.insertCell();
+    if ('pictures' in g.defaults) pictures.append(selectFor(id, 'pictures', [1, 0], ['так', 'ні']));
+    else pictures.textContent = '—';
   }
   const voice = $('voice-toggle');
   voice.value = String(Store.read('mt-voice', true));
