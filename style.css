@@ -412,8 +412,9 @@ button {
 
 /* Додавання і віднімання */
 .equation { font-size: clamp(40px, 6vmin, 60px); font-weight: 700; min-height: 1.2em; padding: 4px 24px; border-radius: 16px; border: 5px solid transparent; }
-.basket { min-width: min(80%, 640px); }
-.gone { opacity: .2; transform: translateY(-16px) scale(.85); transition: opacity .6s, transform .6s; }
+.basket { width: 100%; }
+.area-add .give-plate { min-height: calc(var(--obj) + 40px); }
+.gone { opacity: .2; transform: translateY(-12px); transition: opacity .6s, transform .6s; }
 .faded { opacity: .25; }
 .example { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 16px; }
 .term { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 100px; }
