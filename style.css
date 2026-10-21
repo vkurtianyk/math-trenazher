@@ -427,20 +427,20 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: clamp(260px, 36vmin, 360px);
+  width: clamp(280px, 40vw, 520px);
   padding: 0;
   border: 0;
   background: transparent;
 }
 .roof {
   width: 100%;
-  height: 70px;
+  height: 50px;
   background: #e57373;
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 .rooms {
   width: 88%;
-  min-height: calc(var(--obj) * 2 + 32px);
+  min-height: 152px;
   display: flex;
   flex-wrap: wrap;
   align-content: center;
@@ -451,7 +451,9 @@ button {
   border: 5px solid #bcaaa4;
   border-top: 0;
 }
-.rooms .item, .area-split .box .item { width: var(--obj); height: var(--obj); padding: 0; }
+.area-split .item { width: 64px; height: 64px; min-width: 0; min-height: 0; padding: 0; }
+.area-split .item .emoji { font-size: 50px; }
+.area-split .box { min-height: 0; padding: 8px; }
 
 /* ---------- Нагорода ---------- */
 
