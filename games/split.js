@@ -33,11 +33,9 @@
       update();
 
       for (const h of houses) {
-        h.addEventListener('click', e => {
-          if (api.locked) return;
-          const back = e.target.closest('.item');
-          if (back) pile.append(back);
-          else if (pile.firstChild) h.lastChild.append(pile.firstChild);
+        h.addEventListener('click', () => {
+          if (api.locked || !pile.firstChild) return;
+          h.lastChild.append(pile.firstChild);
           update();
           if (!pile.firstChild) api.later(finish, 400);
         });
@@ -45,7 +43,6 @@
       api.instruct(`Посели ${thing.acc} у будиночки`);
 
       function finish() {
-        if (pile.firstChild) return;
         api.success(eq, () => {
           eq.textContent = `${n} = ${houses[0].lastChild.children.length} + ${houses[1].lastChild.children.length}`;
         });
