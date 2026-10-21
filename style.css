@@ -396,8 +396,8 @@ button {
 .frames { gap: 32px; }
 .frame {
   display: grid;
-  grid-template-columns: repeat(5, clamp(56px, 8vmin, 84px));
-  grid-auto-rows: clamp(56px, 8vmin, 84px);
+  grid-template-columns: repeat(5, clamp(60px, 10vmin, 100px));
+  grid-auto-rows: clamp(60px, 10vmin, 100px);
   gap: 4px;
   padding: 6px;
   background: #fff;
@@ -405,7 +405,7 @@ button {
   border-radius: 12px;
 }
 .frame-cell { display: flex; align-items: center; justify-content: center; border: 2px solid #eceff1; border-radius: 8px; }
-.frame-cell .emoji { font-size: clamp(36px, 5.5vmin, 58px); }
+.frame-cell .emoji { font-size: clamp(40px, 7vmin, 70px); }
 .cell.focus { background: #e3f2fd; border-color: #5b8def; }
 .cell.ask { color: #90a4ae; border-style: dashed; }
 .group.many .emoji { font-size: clamp(56px, 8vmin, 84px); }
@@ -420,7 +420,11 @@ button {
 .term { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 100px; }
 .term-n { font-size: clamp(64px, 11vmin, 110px); font-weight: 700; line-height: 1; }
 .term-n.ask { color: #90a4ae; }
-.term .group .emoji { font-size: clamp(30px, 4.5vmin, 44px); }
+.term .group .emoji { font-size: clamp(36px, 3.6vw, 56px); }
+@media (orientation: portrait) {
+  .example { gap: 8px; }
+  .term .group .emoji { font-size: clamp(36px, 4.6vw, 56px); }
+}
 .sign { font-size: clamp(64px, 11vmin, 110px); font-weight: 700; line-height: 1; color: var(--muted); }
 .houses { gap: 40px; }
 .house {
