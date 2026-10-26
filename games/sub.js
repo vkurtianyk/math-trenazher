@@ -6,6 +6,7 @@
   registerGame({
     id: 'sub',
     block: 'math',
+    rocket: true,
     caption: 'Скільки залишилось?',
     defaults: { range: 10, options: 3 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐥🐥<span class="faded">🐥</span><br><small>3 − 1</small></span>',
@@ -19,6 +20,7 @@
       lastThing = thing;
 
       const field = api.el('div', 'field');
+      const items = [];
       let taken = 0;
       for (let i = 0; i < a; i++) {
         const item = api.el('button', 'obj thing', Util.emoji(thing.e));
@@ -30,6 +32,7 @@
           if (taken === b) api.later(ask, 900);
         });
         field.append(item);
+        items.push(item);
       }
       const eq = Util.equation(`${a} − ${b} = ?`);
       api.area.append(field, eq);
@@ -37,6 +40,7 @@
 
       function ask() {
         api.instruct(`Скільки ${thing.gen} залишилось?`);
+        api.hintWith(() => [items.filter(i => !i.classList.contains('gone'))]);
         api.numberChoices(Util.options(rest, api.settings.options, 1, max), rest, () => {
           eq.textContent = `${a} − ${b} = ${rest}`;
         });

@@ -20,6 +20,7 @@
   registerGame({
     id: 'example',
     block: 'math',
+    rocket: true,
     caption: 'Приклад з картинкою',
     defaults: { range: 10, options: 3, pictures: 1 },
     icon: '<span class="icon-emoji" aria-hidden="true"><b>2 + 1</b><small>🍎🍎 🍎</small></span>',
@@ -47,6 +48,7 @@
         result,
       );
       api.area.append(row);
+      if (pictures) api.hintWith(() => [[...row.querySelectorAll('.term .item:not(.faded)')]]);
       api.instruct(`Скільки буде ${a} ${plus ? 'плюс' : 'мінус'} ${b}?`);
       api.numberChoices(Util.options(answer, api.settings.options, 1, max), answer, () => {
         resultN.textContent = String(answer);

@@ -22,6 +22,7 @@
       const group = api.el('div', n > 10 ? 'group big many' : 'group big');
       for (let i = 0; i < n; i++) group.append(api.el('span', 'item', Util.emoji(thing.e)));
       api.area.append(group);
+      api.hintWith(() => [[...group.children]]);
       api.instruct(`Скільки ${thing.gen}?`);
       api.numberChoices(Util.options(n, api.settings.options, 1, max), n);
     },

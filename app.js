@@ -1,6 +1,7 @@
 'use strict';
 
 const TASKS_PER_GAME = 5;
+const STARS_PER_STICKER = 5;
 const NEXT_DELAY = 1000;
 const LONG_PRESS = 2000;
 
@@ -159,7 +160,8 @@ const $ = id => document.getElementById(id);
 const state = {
   game: null, settings: null, index: 0,
   first: 0, hinted: 0, taskHinted: false,
-  locked: false, token: 0,
+  results: [], // по завданню: true — з першої спроби (золота зірочка), false — з підказкою
+  locked: false, busy: false, hint: null, token: 0,
 };
 
 const api = {
@@ -198,25 +200,35 @@ const api = {
     if (onDone) onDone();
     Voice.say('Молодець!');
     if (state.taskHinted) state.hinted++; else state.first++;
+    state.results.push(!state.taskHinted);
+    renderProgress();
     api.later(() => { state.index++; nextTask(); }, NEXT_DELAY);
   },
 
-  miss(el, correctEl) {
-    if (state.locked) return;
+  // Підказка після хибної відповіді: які предмети порахувати разом (масив груп).
+  hintWith(groupsFn) {
+    state.hint = groupsFn;
+  },
+
+  // Хибна відповідь: кнопка хитається і зникає. Правильну не показуємо —
+  // якщо вправа задала підказку, рахуємо разом, і учень вибирає ще раз сам.
+  miss(el) {
     api.markHinted();
-    el.classList.remove('shake');
-    void el.offsetWidth;
+    el.disabled = true;
     el.classList.add('shake');
-    correctEl.classList.add('hint');
-    api.repeat();
+    api.later(() => el.classList.add('out'), 500);
+    if (!state.hint) return api.repeat();
+    state.busy = true;
+    api.countTogether(state.hint(), $('instruction').textContent, () => { state.busy = false; });
   },
 
   // Прив'язати вибір: правильна кнопка — успіх, інша — підказка.
   choose(buttons, correctBtn, onCorrect) {
     for (const b of buttons) {
       b.addEventListener('click', () => {
+        if (state.locked || state.busy) return;
         if (b === correctBtn) api.success(b, onCorrect);
-        else api.miss(b, correctBtn);
+        else api.miss(b);
       });
     }
   },
@@ -237,6 +249,7 @@ const api = {
     for (const group of groups) {
       group.forEach((item, i) => {
         api.later(() => {
+          item.dataset.before = item.dataset.n || '';
           item.classList.add('hint');
           item.dataset.n = i + 1;
           Voice.say(String(i + 1));
@@ -246,9 +259,12 @@ const api = {
       t += STEP;
     }
     api.later(() => {
+      // Повертаємо номери, які були до підказки (напр. уже пораховані предмети).
       for (const item of groups.flat()) {
         item.classList.remove('hint');
-        delete item.dataset.n;
+        if (item.dataset.before) item.dataset.n = item.dataset.before;
+        else delete item.dataset.n;
+        delete item.dataset.before;
       }
       api.instruct(back);
       done();
@@ -317,6 +333,7 @@ function startGame(id) {
   state.index = 0;
   state.first = 0;
   state.hinted = 0;
+  state.results = [];
   state.token++;
   $('repeat').hidden = !Voice.on;
   showScreen('game');
@@ -327,12 +344,42 @@ function nextTask() {
   if (state.index === TASKS_PER_GAME) return finish();
   state.taskHinted = false;
   state.locked = false;
+  state.busy = false;
+  state.hint = null;
   $('area').replaceChildren();
   $('choices').replaceChildren();
   $('area').className = 'area area-' + state.game.id;
-  $('progress').replaceChildren(...Array.from({ length: TASKS_PER_GAME }, (_, i) =>
-    Util.el('span', i < state.index ? 'dot done' : i === state.index ? 'dot now' : 'dot')));
+  renderProgress();
   state.game.task(api, state.index);
+}
+
+// Ракета з 5 деталей: кожне завдання додає деталь — кольорову (з першої спроби) або сіру.
+const ROCKET_PARTS = [
+  '<path d="M18 58 L6 80 L18 75 Z M42 58 L54 80 L42 75 Z"/>',
+  '<rect x="18" y="28" width="24" height="48" rx="6"/>',
+  '<circle cx="30" cy="46" r="7"/>',
+  '<path d="M18 32 Q30 0 42 32 Z"/>',
+  '<path d="M22 78 L30 98 L38 78 Z"/>',
+];
+function rocketSvg(results) {
+  const parts = ROCKET_PARTS.map((p, i) => {
+    const cls = i >= results.length ? 'todo' : results[i] ? 'gold' : 'grey';
+    return p.replace(/^<(\w+)/, `<$1 class="part p${i} ${cls}"`);
+  });
+  return `<svg class="rocket" viewBox="0 0 60 100" aria-hidden="true">${parts.join('')}</svg>`;
+}
+
+// Прогрес у верхній панелі: ракета у вправах на + і −, крапки — в інших.
+function renderProgress() {
+  if (state.game.rocket) {
+    $('progress').innerHTML = rocketSvg(state.results);
+    return;
+  }
+  $('progress').replaceChildren(...Array.from({ length: TASKS_PER_GAME }, (_, i) => {
+    const cls = i < state.results.length ? (state.results[i] ? 'dot gold' : 'dot grey')
+      : i === state.index ? 'dot now' : 'dot';
+    return Util.el('span', cls);
+  }));
 }
 
 function finish() {
@@ -344,16 +391,29 @@ function finish() {
     first: state.first,
     hinted: state.hinted,
   });
-  const star = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 L62 38 L96 38 L68 58 L79 92 L50 71 L21 92 L32 58 L4 38 L38 38 Z" fill="#ffca28" stroke="#f9a825" stroke-width="4" stroke-linejoin="round"/></svg>';
-  $('stars').replaceChildren(...Array.from({ length: TASKS_PER_GAME }, (_, i) => {
-    const s = Util.el('span', 'star', star);
+  $('stars').replaceChildren(...state.results.map((gold, i) => {
+    const s = Util.el('span', gold ? 'star gold' : 'star grey', STAR_SVG);
     s.style.animationDelay = (i * 0.35) + 's';
     return s;
   }));
-  $('sticker').innerHTML = Util.emoji(awardSticker());
+
+  // Золоті зірочки падають у скарбничку; кожні 5 — нова наліпка.
+  let jar = Store.read('mt-jar', 0) + state.results.filter(Boolean).length;
+  const earned = jar >= STARS_PER_STICKER;
+  if (earned) jar -= STARS_PER_STICKER;
+  Store.write('mt-jar', jar);
+  $('sticker').innerHTML = earned ? Util.emoji(awardSticker()) : '';
+  $('jar').replaceChildren(...Array.from({ length: STARS_PER_STICKER }, (_, i) =>
+    Util.el('span', i < jar ? 'jar-slot full' : 'jar-slot', STAR_SVG)));
+
+  const allGold = state.results.every(Boolean);
+  $('reward-rocket').innerHTML = state.game.rocket ? rocketSvg(state.results) : '';
+  $('reward-rocket').classList.toggle('launch', state.game.rocket && allGold);
   showScreen('reward');
   Voice.say('Молодець!', true);
 }
+
+const STAR_SVG = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 L62 38 L96 38 L68 58 L79 92 L50 71 L21 92 L32 58 L4 38 L38 38 Z" stroke-width="4" stroke-linejoin="round"/></svg>';
 
 function goMenu() {
   state.token++;

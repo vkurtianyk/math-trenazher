@@ -27,6 +27,7 @@
         strip.append(cell);
       }
       api.area.append(strip);
+      api.hintWith(() => [[...strip.children].slice(0, answer - 1)]);
       api.instruct(after ? `Яке число після ${n}?` : `Яке число перед ${n}?`);
       api.numberChoices(Util.options(answer, api.settings.options, 1, max), answer, () => {
         askCell.textContent = String(answer);

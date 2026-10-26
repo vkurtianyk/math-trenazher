@@ -28,6 +28,7 @@
       field.append(frame(10, thing), frame(k, thing));
       const eq = Util.equation(`10 і ще ${k}`);
       api.area.append(field, eq);
+      api.hintWith(() => [[...field.querySelectorAll('.frame-cell')].filter(c => c.firstChild)]);
       api.instruct(`Скільки всього ${thing.gen}?`);
       api.numberChoices(Util.options(total, api.settings.options, 11, 15), total, () => {
         eq.textContent = `10 і ще ${k} — це ${total}`;

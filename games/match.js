@@ -29,6 +29,7 @@
       field.append(api.el('div', 'card target', String(n)));
       api.area.append(field);
       api.choicesEl.append(...buttons);
+      api.hintWith(() => buttons.filter(b => !b.disabled).map(b => [...b.querySelectorAll('.item')]));
       api.instruct(`Покажи, де ${n}`);
       api.choose(buttons, buttons[counts.indexOf(n)]);
     },

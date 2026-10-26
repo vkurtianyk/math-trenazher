@@ -33,6 +33,7 @@
         strip.append(cell);
       }
       api.area.append(strip);
+      api.hintWith(() => [[...strip.children].slice(0, hidden - 1)]);
       api.instruct('Яку цифру сховали?');
       api.numberChoices(Util.options(hidden, api.settings.options, 1, max), hidden, () => {
         hiddenCell.textContent = String(hidden);

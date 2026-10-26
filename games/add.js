@@ -6,6 +6,7 @@
   registerGame({
     id: 'add',
     block: 'math',
+    rocket: true,
     caption: 'Разом',
     defaults: { range: 10, options: 3 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐱🐱 🐱<br><small>2 + 1</small></span>',
@@ -43,6 +44,7 @@
 
       function ask() {
         api.instruct(`Скільки разом ${thing.gen}?`);
+        api.hintWith(() => [[...basket.children]]);
         api.numberChoices(Util.options(sum, api.settings.options, 1, max), sum, () => {
           eq.textContent = `${a} + ${b} = ${sum}`;
         });
