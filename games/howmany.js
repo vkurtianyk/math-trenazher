@@ -8,6 +8,7 @@
     id: 'howmany',
     block: 'extra',
     caption: 'Скільки тут?',
+    level: 2,
     ranges: [5, 10, 15],
     defaults: { range: 5, options: 3 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐞🐞<br><b>2</b></span>',

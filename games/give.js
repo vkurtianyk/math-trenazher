@@ -8,6 +8,7 @@
     id: 'give',
     block: 'oct',
     caption: 'Дай стільки ж',
+    level: 2,
     defaults: { range: 10 },
     icon: `<svg viewBox="0 0 120 120" aria-hidden="true">
       <ellipse cx="30" cy="50" rx="26" ry="26" fill="#fff" stroke="#b0bec5" stroke-width="3"/>

@@ -8,6 +8,7 @@
     block: 'math',
     rocket: true,
     caption: 'Скільки залишилось?',
+    level: 3,
     defaults: { range: 10, options: 3 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐥🐥<span class="faded">🐥</span><br><small>3 − 1</small></span>',
 

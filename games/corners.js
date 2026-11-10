@@ -31,6 +31,7 @@
     id: 'corners',
     block: 'oct',
     caption: 'Скільки кутів?',
+    level: 1,
     defaults: {},
     icon: `<svg viewBox="0 0 120 120" aria-hidden="true">
       <path d="M60 18 L104 98 L16 98 Z" fill="#5b8def"/>

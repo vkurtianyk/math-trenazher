@@ -7,6 +7,7 @@
     id: 'neighbors',
     block: 'teen',
     caption: 'Сусіди числа',
+    level: 2,
     defaults: { range: 15, options: 3 },
     ranges: [10, 15],
     icon: '<span class="icon-emoji" aria-hidden="true"><b>7 → ?</b></span>',

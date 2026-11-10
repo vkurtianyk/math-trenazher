@@ -15,6 +15,7 @@
     id: 'teen',
     block: 'teen',
     caption: 'Десяток і ще',
+    level: 2,
     defaults: { options: 3 },
     icon: '<span class="icon-emoji" aria-hidden="true"><b>13</b><small>🔟 ➕ 3</small></span>',
 

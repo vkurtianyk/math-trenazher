@@ -21,6 +21,7 @@
     id: 'size',
     block: 'extra',
     caption: 'Великий і маленький',
+    level: 1,
     defaults: { options: 2 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐘<small>🐘</small></span>',
 

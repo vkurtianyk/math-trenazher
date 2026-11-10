@@ -20,6 +20,7 @@
     id: 'feed',
     block: 'extra',
     caption: 'Нагодуй тваринку',
+    level: 2,
     defaults: { range: 5 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐰<br>🥕🥕</span>',
 

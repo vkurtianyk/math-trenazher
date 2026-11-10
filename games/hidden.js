@@ -11,6 +11,7 @@
     id: 'hidden',
     block: 'sep',
     caption: 'Яку цифру сховали?',
+    level: 2,
     ranges: [5, 10, 15],
     defaults: { range: 10, options: 3 },
     icon: `<svg viewBox="0 0 120 120" aria-hidden="true">

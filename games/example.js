@@ -22,6 +22,7 @@
     block: 'math',
     rocket: true,
     caption: 'Приклад з картинкою',
+    level: 3,
     defaults: { range: 10, options: 3, pictures: 1 },
     icon: '<span class="icon-emoji" aria-hidden="true"><b>2 + 1</b><small>🍎🍎 🍎</small></span>',
 

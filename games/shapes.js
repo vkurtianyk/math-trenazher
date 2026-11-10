@@ -15,6 +15,7 @@
     id: 'shapes',
     block: 'sep',
     caption: 'Покажи фігуру',
+    level: 1,
     defaults: { options: 3 },
     icon: `<svg viewBox="0 0 120 120" aria-hidden="true">
       <path d="M30 14 L54 56 L6 56 Z" fill="#5b8def"/>

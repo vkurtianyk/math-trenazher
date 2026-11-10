@@ -8,6 +8,7 @@
     block: 'math',
     rocket: true,
     caption: 'Разом',
+    level: 3,
     defaults: { range: 10, options: 3 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐱🐱 🐱<br><small>2 + 1</small></span>',
 

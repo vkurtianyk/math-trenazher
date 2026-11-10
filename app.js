@@ -1,7 +1,10 @@
 'use strict';
 
 const TASKS_PER_GAME = 5;
-const STARS_PER_STICKER = 5;
+// Бали за одне завдання з першої спроби, за рівнем вправи (1 — легка, 2 — середня, 3 — на + і −).
+const POINTS_PER_TASK = { 1: 1, 2: 2, 3: 4 };
+// Скільки разів пройти вправу 5 з 5, щоб отримати корону 👑 (і вона перестала давати бали).
+const MASTERY_RUNS = 3;
 const NEXT_DELAY = 1000;
 const LONG_PRESS = 2000;
 
@@ -138,7 +141,7 @@ const Store = {
     localStorage.setItem(name, JSON.stringify(value));
   },
   settings(id) {
-    return { ...Games[id].defaults, ...Store.read('mt-settings', {})[id] };
+    return { inMenu: 1, today: 0, ...Games[id].defaults, ...Store.read('mt-settings', {})[id] };
   },
   saveSetting(id, field, value) {
     const all = Store.read('mt-settings', {});
@@ -275,17 +278,18 @@ const api = {
 // ---------- Альбом наліпок ----------
 
 // Сторінки альбому. Наступна відкривається, коли попередню зібрано повністю.
+// price — скільки балів коштує наліпка з цієї сторінки.
 const ALBUM = [
-  { title: 'Тварини', stickers: ['🐱', '🐶', '🐰', '🐻', '🐼', '🦊', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵',
+  { title: 'Тварини', price: 10, stickers: ['🐱', '🐶', '🐰', '🐻', '🐼', '🦊', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵',
     '🐔', '🐧', '🦉', '🐢', '🐟', '🐬', '🐳', '🦋', '🐞', '🐝', '🦄', '🐘',
     '🦒', '🦓', '🐴', '🐑', '🐿️', '🦔'] },
-  { title: 'Транспорт', stickers: ['🚗', '🚕', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛',
+  { title: 'Транспорт', price: 14, stickers: ['🚗', '🚕', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛',
     '🚜', '🏍️', '🛵', '🚲', '🛴', '🚂', '🚆', '🚇', '🚊', '🚝', '✈️', '🚁',
     '🛩️', '🚀', '🛸', '⛵', '🚤', '🛳️'] },
-  { title: 'Смаколики', stickers: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒', '🍑', '🥭',
+  { title: 'Смаколики', price: 20, stickers: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒', '🍑', '🥭',
     '🍍', '🥥', '🥝', '🍅', '🥕', '🌽', '🥦', '🥒', '🍞', '🧀', '🥚', '🥞',
     '🍕', '🍔', '🍟', '🍦', '🍩', '🍪'] },
-  { title: 'Небо і космос', stickers: ['☀️', '🌞', '🌝', '🌛', '🌜', '🌙', '🌕', '🌗', '🌑', '⭐', '🌟', '✨',
+  { title: 'Небо і космос', price: 20, stickers: ['☀️', '🌞', '🌝', '🌛', '🌜', '🌙', '🌕', '🌗', '🌑', '⭐', '🌟', '✨',
     '💫', '🌠', '☄️', '🪐', '🌍', '🌎', '🌏', '🛰️', '👽', '👾', '🌌', '🔭',
     '🌈', '☁️', '⛅', '⚡', '❄️', '🌪️'] },
 ];
@@ -305,6 +309,34 @@ function awardSticker() {
   const s = Util.pick(missing);
   Store.write('mt-stickers', [...have, s]);
   return s;
+}
+
+// Ціна наступної наліпки — за поточною сторінкою альбому.
+function stickerPrice() {
+  const pages = openPages(Store.read('mt-stickers', []));
+  return pages[pages.length - 1].price;
+}
+
+// ---------- Корони, завдання дня ----------
+
+// Корона прив'язана до налаштувань складності: інший діапазон чи кількість варіантів — нова корона.
+function masteryKey(id) {
+  const s = Store.settings(id);
+  return [id, s.range, s.options, s.pictures].join('|');
+}
+
+function perfectRuns(id) {
+  return Store.read('mt-mastery', {})[masteryKey(id)] || 0;
+}
+
+function isMastered(id) {
+  return perfectRuns(id) >= MASTERY_RUNS;
+}
+
+// Якщо асистент вибрав завдання дня, бали дають лише вони. Вправа з короною балів не дає.
+function givesPoints(id) {
+  const picked = GAME_ORDER.filter(g => Store.settings(g).today === 1);
+  return !isMastered(id) && (picked.length === 0 || picked.includes(id));
 }
 
 function openAlbum() {
@@ -397,14 +429,30 @@ function finish() {
     return s;
   }));
 
-  // Золоті зірочки падають у скарбничку; кожні 5 — нова наліпка.
-  let jar = Store.read('mt-jar', 0) + state.results.filter(Boolean).length;
-  const earned = jar >= STARS_PER_STICKER;
-  if (earned) jar -= STARS_PER_STICKER;
-  Store.write('mt-jar', jar);
-  $('sticker').innerHTML = earned ? Util.emoji(awardSticker()) : '';
-  $('jar').replaceChildren(...Array.from({ length: STARS_PER_STICKER }, (_, i) =>
-    Util.el('span', i < jar ? 'jar-slot full' : 'jar-slot', STAR_SVG)));
+  // Золоті зірочки → бали за рівнем вправи → скарбничка; повна скарбничка — наліпка.
+  const id = state.game.id;
+  const gold = state.results.filter(Boolean).length;
+  const counts = givesPoints(id);
+  const wasMastered = isMastered(id);
+  if (gold === TASKS_PER_GAME) {
+    const mastery = Store.read('mt-mastery', {});
+    mastery[masteryKey(id)] = perfectRuns(id) + 1;
+    Store.write('mt-mastery', mastery);
+  }
+  let points = Store.read('mt-points', 0) + (counts ? gold * POINTS_PER_TASK[state.game.level] : 0);
+  const stickers = [];
+  while (points >= stickerPrice()) {
+    points -= stickerPrice();
+    stickers.push(awardSticker());
+  }
+  Store.write('mt-points', points);
+  $('sticker').innerHTML = stickers.map(Util.emoji).join('');
+  $('jar-fill').style.width = (points / stickerPrice() * 100) + '%';
+  $('jar-caption').textContent = `до наліпки: ${points} з ${stickerPrice()}`;
+  $('crown').hidden = wasMastered || !isMastered(id);
+  $('reward-note').textContent = counts ? ''
+    : wasMastered ? 'Вправа з короною 👑 — зірочки не йдуть у скарбничку.'
+      : 'Зараз бали дають лише завдання дня ⭐.';
 
   const allGold = state.results.every(Boolean);
   $('reward-rocket').innerHTML = state.game.rocket ? rocketSvg(state.results) : '';
@@ -418,21 +466,30 @@ const STAR_SVG = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 L
 function goMenu() {
   state.token++;
   Voice.stop();
+  buildMenu();
   showScreen('menu');
 }
 
 // ---------- Меню ----------
 
+// Завдання дня — окремим блоком зверху (навіть якщо сховані з меню); сховані вправи не показуємо.
 function buildMenu() {
-  const blocks = [['sep', 'Вересень'], ['oct', 'Жовтень'], ['extra', 'Ще вправи'],
-    ['teen', 'Числа до 15'], ['math', 'Додавання і віднімання']];
-  $('menu-blocks').replaceChildren(...blocks.map(([block, title]) => {
-    const wrap = Util.el('div', 'block');
+  const today = GAME_ORDER.filter(id => Store.settings(id).today === 1);
+  const rest = GAME_ORDER.filter(id => Store.settings(id).inMenu === 1 && !today.includes(id));
+  const blocks = [
+    ['Сьогодні ⭐', today],
+    ...[['sep', 'Вересень'], ['oct', 'Жовтень'], ['extra', 'Ще вправи'],
+      ['teen', 'Числа до 15'], ['math', 'Додавання і віднімання']]
+      .map(([block, title]) => [title, rest.filter(id => Games[id].block === block)]),
+  ].filter(([, ids]) => ids.length > 0);
+  $('menu-blocks').replaceChildren(...blocks.map(([title, ids]) => {
+    const wrap = Util.el('div', ids === today ? 'block today' : 'block');
     wrap.append(Util.el('h2', 'block-title', title));
     const grid = Util.el('div', 'cards');
-    for (const id of GAME_ORDER.filter(id => Games[id].block === block)) {
+    for (const id of ids) {
       const g = Games[id];
-      const card = Util.el('button', 'menu-card', `${g.icon}<span class="caption">${g.caption}</span>`);
+      const crown = isMastered(id) ? '<span class="crown-badge" aria-hidden="true">👑</span>' : '';
+      const card = Util.el('button', 'menu-card', `${crown}${g.icon}<span class="caption">${g.caption}</span>`);
       card.setAttribute('aria-label', g.caption);
       card.addEventListener('click', () => startGame(id));
       grid.append(card);
@@ -474,11 +531,14 @@ function openSettings() {
   const table = $('settings-table');
   table.replaceChildren();
   const head = table.insertRow();
-  for (const h of ['Вправа', 'Діапазон', 'Варіантів', 'Картинки']) head.append(Util.el('th', '', h));
+  for (const h of ['Вправа', 'Бали', 'Діапазон', 'Варіантів', 'Картинки', 'У меню', 'Дня ⭐', '👑']) {
+    head.append(Util.el('th', '', h));
+  }
   for (const id of GAME_ORDER) {
     const g = Games[id];
     const row = table.insertRow();
     row.insertCell().textContent = g.caption;
+    row.insertCell().textContent = POINTS_PER_TASK[g.level] + ' за завдання';
     const range = row.insertCell();
     const ranges = g.ranges || [5, 10];
     if ('range' in g.defaults) range.append(selectFor(id, 'range', ranges, ranges.map(r => 'до ' + r)));
@@ -489,6 +549,9 @@ function openSettings() {
     const pictures = row.insertCell();
     if ('pictures' in g.defaults) pictures.append(selectFor(id, 'pictures', [1, 0], ['так', 'ні']));
     else pictures.textContent = '—';
+    row.insertCell().append(selectFor(id, 'inMenu', [1, 0], ['так', 'ні']));
+    row.insertCell().append(selectFor(id, 'today', [0, 1], ['ні', 'так']));
+    row.insertCell().textContent = isMastered(id) ? '👑' : `${perfectRuns(id)} з ${MASTERY_RUNS}`;
   }
   const voice = $('voice-toggle');
   voice.value = String(Store.read('mt-voice', true));
@@ -542,6 +605,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confirm('Почати альбом наліпок заново?')) Store.write('mt-stickers', []);
   });
   $('settings-close').addEventListener('click', () => $('settings').close());
+  $('settings').addEventListener('close', buildMenu);
+  $('crowns-clear').addEventListener('click', () => {
+    if (confirm('Зняти всі корони? Вправи знову даватимуть бали.')) { Store.write('mt-mastery', {}); openSettings(); }
+  });
   $('log-csv').addEventListener('click', downloadCsv);
   $('log-clear').addEventListener('click', () => {
     if (confirm('Очистити весь журнал?')) { Store.write('mt-log', []); renderLog(); }

@@ -8,6 +8,7 @@
     id: 'match',
     block: 'extra',
     caption: 'Знайди стільки ж',
+    level: 2,
     defaults: { range: 5, options: 2 },
     icon: '<span class="icon-emoji" aria-hidden="true"><b>3</b><br>🐟🐟🐟</span>',
 

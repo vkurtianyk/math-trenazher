@@ -32,6 +32,7 @@
     id: 'compare',
     block: 'oct',
     caption: 'Де більше?',
+    level: 1,
     defaults: { range: 10 },
     icon: `<svg viewBox="0 0 120 120" aria-hidden="true">
       <ellipse cx="30" cy="62" rx="27" ry="27" fill="#fff" stroke="#b0bec5" stroke-width="3"/>

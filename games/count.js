@@ -8,6 +8,7 @@
     id: 'count',
     block: 'sep',
     caption: 'Порахуй',
+    level: 2,
     ranges: [5, 10, 15],
     defaults: { range: 10, options: 3 },
     icon: '<span class="icon-emoji" aria-hidden="true">🐱🐱<br>🐱</span>',

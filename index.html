@@ -56,8 +56,13 @@
   <section id="reward" class="screen" hidden>
     <div id="reward-rocket" class="reward-rocket"></div>
     <div id="stars" class="stars"></div>
+    <div id="crown" class="crown" hidden><span class="emoji" aria-hidden="true">👑</span>Вже вмієш!</div>
     <div id="sticker" class="sticker-prize"></div>
-    <div class="jar-row"><div id="jar" class="jar"></div><small class="caption">до наліпки</small></div>
+    <div class="jar-row">
+      <div class="jar-bar"><span id="jar-fill" class="jar-fill"></span></div>
+      <small id="jar-caption" class="caption"></small>
+      <small id="reward-note" class="caption"></small>
+    </div>
     <p class="instruction">Молодець!</p>
     <button id="reward-home" class="tool big" aria-label="Меню">🏠</button>
   </section>
@@ -73,12 +78,13 @@
       <span id="voice-status"></span>
     </p>
     <h3>Налаштування вправ</h3>
-    <table id="settings-table"></table>
+    <div class="table-wrap"><table id="settings-table"></table></div>
     <h3>Журнал</h3>
     <div class="log-actions">
       <button id="log-csv">Завантажити CSV</button>
       <button id="log-clear">Очистити журнал</button>
       <button id="album-clear">Почати альбом заново</button>
+      <button id="crowns-clear">Зняти корони</button>
     </div>
     <table id="log-table"></table>
   </dialog>

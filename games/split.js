@@ -10,6 +10,7 @@
     block: 'math',
     rocket: true,
     caption: 'Розклади число',
+    level: 1,
     defaults: { range: 10 },
     icon: '<span class="icon-emoji" aria-hidden="true">🏠 🏠<br><small>🐱🐱 🐱</small></span>',
 
