@@ -479,7 +479,7 @@ function buildMenu() {
   const blocks = [
     ['Сьогодні ⭐', today],
     ...[['sep', 'Вересень'], ['oct', 'Жовтень'], ['extra', 'Ще вправи'],
-      ['teen', 'Числа до 15'], ['math', 'Додавання і віднімання']]
+      ['teen', 'Числа до 15'], ['math', 'Додавання і віднімання'], ['geom', 'Геометрія']]
       .map(([block, title]) => [title, rest.filter(id => Games[id].block === block)]),
   ].filter(([, ids]) => ids.length > 0);
   $('menu-blocks').replaceChildren(...blocks.map(([title, ids]) => {

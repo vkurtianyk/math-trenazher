@@ -474,6 +474,17 @@ button {
 .area-split .item .emoji { font-size: 50px; }
 .area-split .box { min-height: 0; padding: 8px; }
 
+/* Коло і круг */
+.shape .emoji { font-size: clamp(90px, 14vmin, 140px); }
+.trace { border: 5px solid transparent; border-radius: 50%; padding: 8px; }
+.trace-guide { fill: none; stroke: #cfd8dc; stroke-width: 6; stroke-dasharray: 10 12; }
+.trace-line { fill: none; stroke: #5b8def; stroke-width: 12; stroke-linecap: round; }
+.trace-hit { fill: transparent; cursor: pointer; }
+.trace-mark { fill: #fff; stroke: #90a4ae; stroke-width: 4; pointer-events: none; }
+.trace-dot.next .trace-mark { fill: var(--hint); stroke: #f9a825; }
+.trace-dot.done .trace-mark { fill: #c8e6c9; stroke: #66bb6a; }
+.trace-n { font-size: 28px; font-weight: 700; text-anchor: middle; fill: var(--ink); pointer-events: none; }
+
 /* ---------- Нагорода ---------- */
 
 #reward { align-items: center; justify-content: center; gap: 24px; }
